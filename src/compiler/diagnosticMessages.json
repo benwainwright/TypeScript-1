@@ -4211,6 +4211,10 @@
         "category": "Message",
         "code": 6070
     },
+    "Initializes a TypeScript project and creates a tsconfig.json file without any comments.": {
+      "category": "Message",
+      "code": 18042
+    },
     "Successfully created a tsconfig.json file.": {
         "category": "Message",
         "code": 6071
