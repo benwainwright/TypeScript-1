@@ -2407,6 +2407,8 @@ namespace ts {
     /* @internal */
     export function generateTSConfig(options: CompilerOptions, fileNames: readonly string[], newLine: string): string {
         const compilerOptionsMap = getSerializedCompilerOption(options);
+
+        const { initSimple } = options
         return writeConfigurations();
 
         function makePadding(paddingLength: number): string {
@@ -2435,23 +2437,28 @@ namespace ts {
             let seenKnownKeys = 0;
             const entries: { value: string, description?: string }[] = [];
             categorizedOptions.forEach((options, category) => {
-                if (entries.length !== 0) {
-                    entries.push({ value: "" });
+                if(!initSimple) {
+                  if (entries.length !== 0) {
+                      entries.push({ value: "" });
+                  }
+                  entries.push({ value: `/* ${category} */` });
                 }
-                entries.push({ value: `/* ${category} */` });
                 for (const option of options) {
                     let optionName;
                     if (compilerOptionsMap.has(option.name)) {
                         optionName = `"${option.name}": ${JSON.stringify(compilerOptionsMap.get(option.name))}${(seenKnownKeys += 1) === compilerOptionsMap.size ? "" : ","}`;
                     }
-                    else {
+                    else if(!initSimple){
                         optionName = `// "${option.name}": ${JSON.stringify(getDefaultValueForOption(option))},`;
                     }
-                    entries.push({
-                        value: optionName,
-                        description: `/* ${option.description && getLocaleSpecificMessage(option.description) || option.name} */`
-                    });
-                    marginLength = Math.max(optionName.length, marginLength);
+
+                    if(optionName) {
+                        entries.push({
+                            value: optionName,
+                            description: `/* ${option.description && getLocaleSpecificMessage(option.description) || option.name} */`
+                        });
+                        marginLength = Math.max(optionName.length, marginLength);
+                    }
                 }
             });
 
@@ -2460,12 +2467,14 @@ namespace ts {
             const result: string[] = [];
             result.push(`{`);
             result.push(`${tab}"compilerOptions": {`);
-            result.push(`${tab}${tab}/* ${getLocaleSpecificMessage(Diagnostics.Visit_https_Colon_Slash_Slashaka_ms_Slashtsconfig_json_to_read_more_about_this_file)} */`);
-            result.push("");
+            if(!initSimple) {
+              result.push(`${tab}${tab}/* ${getLocaleSpecificMessage(Diagnostics.Visit_https_Colon_Slash_Slashaka_ms_Slashtsconfig_json_to_read_more_about_this_file)} */`);
+              result.push("");
+            }
             // Print out each row, aligning all the descriptions on the same column.
             for (const entry of entries) {
                 const { value, description = "" } = entry;
-                result.push(value && `${tab}${tab}${value}${description && (makePadding(marginLength - value.length + 2) + description)}`);
+                result.push(value && `${tab}${tab}${value}${!initSimple ? description && (makePadding(marginLength - value.length + 2) + description) : ''}`);
             }
             if (fileNames.length) {
                 result.push(`${tab}},`);

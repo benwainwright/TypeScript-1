@@ -466,6 +466,11 @@ namespace ts {
             return sys.exit(ExitStatus.Success);
         }
 
+        if (commandLine.options.initSimple) {
+            writeConfigFile(sys, reportDiagnostic, commandLine.options, commandLine.fileNames);
+            return sys.exit(ExitStatus.Success);
+        }
+
         if (commandLine.options.version) {
             printVersion(sys);
             return sys.exit(ExitStatus.Success);

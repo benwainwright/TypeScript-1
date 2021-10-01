@@ -6069,6 +6069,7 @@ namespace ts {
         importHelpers?: boolean;
         importsNotUsedAsValues?: ImportsNotUsedAsValues;
         /*@internal*/init?: boolean;
+        /*@internal*/initSimple?: boolean;
         inlineSourceMap?: boolean;
         inlineSources?: boolean;
         isolatedModules?: boolean;
